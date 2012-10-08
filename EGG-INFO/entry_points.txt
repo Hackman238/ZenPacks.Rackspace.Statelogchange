@@ -1,0 +1,3 @@
+[zenoss.zenpacks]
+ZenPacks.Rackspace.Statelogchange = ZenPacks.Rackspace.Statelogchange
+
