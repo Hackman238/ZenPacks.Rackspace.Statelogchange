@@ -500,8 +500,7 @@ def setProdState(self, state, deviceNames=None, isOrganizer=False, REQUEST=None)
                 'eventClass': Change,
                 'device': self.id,
                 'component': '',
-                'summary': 'Production State Changed to %s' % statename ,
-                'ownerid': '%s' % user,
+                'summary': 'Production State Changed to %s by %s' % (statename, user),
                 'severity': Event.Info,
         }
         self.dmd.ZenEventManager.sendEvent(eventDict)
@@ -542,8 +541,7 @@ def setProdState(self, state, maintWindowChange=False, REQUEST=None):
         'eventClass': Change,
         'device': self.id,
         'component': '',
-        'summary': 'Production State Changed to %s' % statename ,
-        'ownerid': '%s' % user,
+        'summary': 'Production State Changed to %s by %s' % (statename, user),
         'severity': Event.Info,
     }
     self.dmd.ZenEventManager.sendEvent(eventDict)
@@ -620,8 +618,7 @@ def setProdState(self, state, ending=False):
                      'eventClass': Change,
                      'device': self.id,
                      'component': '',
-                     'summary': 'Production State Changed to %s' % statename ,
-                     'ownerid': '%s' % user,
+                     'summary': 'Production State Changed to %s by %s' % (statename, user),
                      'severity': Event.Info,
                      }
         self.dmd.ZenEventManager.sendEvent(eventDict)
