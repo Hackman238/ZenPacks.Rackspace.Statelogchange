@@ -523,28 +523,32 @@ def setProdState(self, state, maintWindowChange=False, REQUEST=None):
 
     from Products.ZenEvents.ZenEventClasses import Change
     from Products.ZenEvents import Event
+    from Products.ZenModel.ManagedEntity import ManagedEntity
+    from Products.ZenModel.Device import Device
+    from zope.event import notify
+    from Products.Zuul.catalog.events import IndexingEvent
 
     # Set production state on all components that inherit from this device
     ret = super(Device, self).setProdState(state, maintWindowChange, REQUEST)
+
+    statename = self.convertProdState(state)
+    user = self.dmd.ZenUsers.getUser()
+    eventDict = {
+            'eventClass': Change,
+            'device': self.id,
+            'component': '',
+            'summary': 'Production State Changed to %s by %s' % (statename, user),
+            'severity': Event.Info,
+    }
+    self.dmd.ZenEventManager.sendEvent(eventDict)
+
     for component in self.getDeviceComponents():
         if isinstance(component, ManagedEntity) and self.productionState == component.productionState:
             notify(IndexingEvent(component.primaryAq(), ('productionState',), True))
     if REQUEST:
-        statename = self.convertProdState(state)
-        user = self.dmd.ZenUsers.getUser()
-        eventDict = {
-                'eventClass': Change,
-                'device': self.id,
-                'component': '',
-                'summary': 'Production State Changed to %s by %s' % (statename, user),
-                'severity': Event.Info,
-        }
-        self.dmd.ZenEventManager.sendEvent(eventDict)
-
         audit('UI.Device.EditProductionState', self, productionState=state,
               maintenanceWindowChange=maintWindowChange)
     return ret
-
 
 @monkeypatch('Products.ZenModel.MaintenanceWindow.MaintenanceWindow')
 def setProdState(self, state, ending=False):
