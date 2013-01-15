@@ -521,42 +521,29 @@ def setProdState(self, state, maintWindowChange=False, REQUEST=None):
     @permission: ZEN_CHANGE_DEVICE
     """
 
-    from zope.event import notify
     from Products.ZenEvents.ZenEventClasses import Change
     from Products.ZenEvents import Event
-    from Products.ZenModel.ManagedEntity import ManagedEntity
-    from Products.Zuul.catalog.events import IndexingEvent
-    from Products.ZenWidgets import messaging
-    
-    self.productionState = int(state)
-    self.primaryAq().index_object()
-    if not maintWindowChange:
-        # Saves our production state for use at the end of the
-        # maintenance window.
-        self.preMWProductionState = self.productionState
 
-    statename = self.convertProdState(state)
-    user = self.dmd.ZenUsers.getUser()
-    eventDict = {
-        'eventClass': Change,
-        'device': self.id,
-        'component': '',
-        'summary': 'Production State Changed to %s by %s' % (statename, user),
-        'severity': Event.Info,
-    }
-    self.dmd.ZenEventManager.sendEvent(eventDict)
-
+    # Set production state on all components that inherit from this device
+    ret = super(Device, self).setProdState(state, maintWindowChange, REQUEST)
     for component in self.getDeviceComponents():
-            if isinstance(component, ManagedEntity) and self.productionState == component.productionState:
-                notify(IndexingEvent(component.primaryAq(), ('productionState',), True))
-
+        if isinstance(component, ManagedEntity) and self.productionState == component.productionState:
+            notify(IndexingEvent(component.primaryAq(), ('productionState',), True))
     if REQUEST:
-        messaging.IMessageSender(self).sendToBrowser(
-            "Production State Set",
-            "%s's production state was set to %s." % (self.id,
-                                  self.getProductionStateString())
-        )
-        return self.callZenScreen(REQUEST)
+        statename = self.convertProdState(state)
+        user = self.dmd.ZenUsers.getUser()
+        eventDict = {
+                'eventClass': Change,
+                'device': self.id,
+                'component': '',
+                'summary': 'Production State Changed to %s by %s' % (statename, user),
+                'severity': Event.Info,
+        }
+        self.dmd.ZenEventManager.sendEvent(eventDict)
+
+        audit('UI.Device.EditProductionState', self, productionState=state,
+              maintenanceWindowChange=maintWindowChange)
+    return ret
 
 
 @monkeypatch('Products.ZenModel.MaintenanceWindow.MaintenanceWindow')
@@ -611,7 +598,10 @@ def setProdState(self, state, ending=False):
         log.info("MW %s changes %s's production state from %s to %s",
                  self.displayName(), device.id, device.productionState,
                  minProdState)
-
+        audit('System.Device.Edit', device, starting=str(not ending),
+            maintenanceWindow=self.displayName(),
+            productionState=newProductionState,
+            oldData_={'productionState':oldProductionState})
         statename = self.convertProdState(state)
         user = self.dmd.ZenUsers.getUser()
         eventDict = {
