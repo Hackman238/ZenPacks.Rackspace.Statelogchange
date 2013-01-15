@@ -54,7 +54,7 @@ class ZenPack(ZenPackBase):
         self.addModeler(app.zport.dmd, organizer=None, modelerNames=[''])
 
         # Rebuild relations
-        self.rebuildRelations(app.zport.dmd)
+        #self.rebuildRelations(app.zport.dmd)
 
         # Start daemon
         self.startDaemon(app.zport.dmd, daemonName=None)
@@ -93,7 +93,7 @@ class ZenPack(ZenPackBase):
             self.delEventOrg(app.zport.dmd, organizer=None)
 
             # Rebuild relations
-            self.rebuildRelations(app.zport.dmd)
+            #self.rebuildRelations(app.zport.dmd)
 
             # Recatalog
             self.recatalog(app.zport.dmd, dontReIndex=1)
@@ -137,7 +137,7 @@ class ZenPack(ZenPackBase):
         self.addModeler(app.zport.dmd, organizer=None, modelerNames=[''])
 
         # Rebuild relations
-        self.rebuildRelations(app.zport.dmd)
+        #self.rebuildRelations(app.zport.dmd)
 
         # Start daemon
         self.startDaemon(app.zport.dmd, daemonName=None)
