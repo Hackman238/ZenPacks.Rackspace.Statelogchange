@@ -60,7 +60,7 @@ class ZenPack(ZenPackBase):
         self.startDaemon(app.zport.dmd, daemonName=None)
 
         # Recatalog
-        self.recatalog(app.zport.dmd, dontReIndex=0)
+        self.recatalog(app.zport.dmd, dontReIndex=1)
 
         # Do it
         super(ZenPack, self).install(app)
@@ -96,7 +96,7 @@ class ZenPack(ZenPackBase):
             self.rebuildRelations(app.zport.dmd)
 
             # Recatalog
-            self.recatalog(app.zport.dmd, dontReIndex=0)
+            self.recatalog(app.zport.dmd, dontReIndex=1)
 
         # Unlink daemon and service
         self.removePluginSymlink()
@@ -143,7 +143,7 @@ class ZenPack(ZenPackBase):
         self.startDaemon(app.zport.dmd, daemonName=None)
 
         # Recatalog
-        self.recatalog(app.zport.dmd, dontReIndex=0)
+        self.recatalog(app.zport.dmd, dontReIndex=1)
 
         # Do it
         super(ZenPack, self).upgrade(app)

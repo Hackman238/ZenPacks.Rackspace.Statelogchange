@@ -1,10 +1,10 @@
-Metadata-Version: 2.0
+Metadata-Version: 2.1
 Name: ZenPacks.Rackspace.Statelogchange
-Version: 2.3.0
-Summary: UNKNOWN
+Version: 2.4.0
+Summary: Creates an Info level event loggin when productionstates are modified and by whom.
 Home-page: UNKNOWN
-Author: Peter Mitsich / Shane Scott
-Author-email: UNKNOWN
-License: UNKNOWN
-Description: UNKNOWN
+Author: Shane Scott / Peter Mitsich
+Author-email: Hackman238@gmail.com
+License: GPL
+Description: Creates an Info level event loggin when productionstates are modified and by whom.
 Platform: UNKNOWN
