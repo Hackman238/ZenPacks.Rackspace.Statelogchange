@@ -1,7 +1,7 @@
 import Globals
 import logging
 import os
-log = logging.getLogger('zen.StateChangeLogger')
+log = logging.getLogger('zen.ZenPack.StateChangeLogger')
 
 import ZenPacks.Rackspace.Statelogchange
 from Products.ZenModel.ZenPack import ZenPack as ZenPackBase
@@ -32,6 +32,9 @@ from Products.ZenRelations.RelSchema import ToManyCont, ToOne
 
 
 class ZenPack(ZenPackBase):
+    """ StateLog Loader
+    """
+
     packZProperties = []
 
     def install(self, app):
@@ -51,10 +54,10 @@ class ZenPack(ZenPackBase):
         self.createDeviceOrg(app.zport.dmd, organizer=None)
 
         # Add modeler to organizer, if not existant
-        self.addModeler(app.zport.dmd, organizer=None, modelerNames=[''])
+        self.addModeler(app.zport.dmd, organizer=None, modelerNames=[])
 
         # Rebuild relations
-        #self.rebuildRelations(app.zport.dmd)
+        self.rebuildRelations(app.zport.dmd, dontReBuild=1)
 
         # Start daemon
         self.startDaemon(app.zport.dmd, daemonName=None)
@@ -78,13 +81,13 @@ class ZenPack(ZenPackBase):
 
         if not leaveObjects:
             # Remove components based on classes extended by this package
-            self.removeParts(app.zport.dmd, componentTypes=None, componentNames=[''])
+            self.removeParts(app.zport.dmd, componentTypes=None, componentNames=[])
 
             # Remove report organizers
             self.delReportOrg(app.zport.dmd, parent=None, organizer=None)
 
             # Remove modeler from organizer
-            self.removeModeler(app.zport.dmd, organizer=None, modelerNames=[''])
+            self.removeModeler(app.zport.dmd, organizer=None, modelerNames=[])
 
             # Remove organizer
             self.delDeviceOrg(app.zport.dmd, organizer=None)
@@ -93,7 +96,7 @@ class ZenPack(ZenPackBase):
             self.delEventOrg(app.zport.dmd, organizer=None)
 
             # Rebuild relations
-            #self.rebuildRelations(app.zport.dmd)
+            self.rebuildRelations(app.zport.dmd, dontReBuild=1)
 
             # Recatalog
             self.recatalog(app.zport.dmd, dontReIndex=1)
@@ -116,7 +119,7 @@ class ZenPack(ZenPackBase):
         self.removePluginSymlink()
 
         # Remove modeler from organizer
-        self.removeModeler(app.zport.dmd, organizer=None, modelerNames=[''])
+        self.removeModeler(app.zport.dmd, organizer=None, modelerNames=[])
 
         # Relink daemon and service
         self.symlinkPlugin()
@@ -134,10 +137,10 @@ class ZenPack(ZenPackBase):
         self.createDeviceOrg(app.zport.dmd, organizer=None)
 
         # Add modeler to organizer
-        self.addModeler(app.zport.dmd, organizer=None, modelerNames=[''])
+        self.addModeler(app.zport.dmd, organizer=None, modelerNames=[])
 
         # Rebuild relations
-        #self.rebuildRelations(app.zport.dmd)
+        self.rebuildRelations(app.zport.dmd, dontReBuild=1)
 
         # Start daemon
         self.startDaemon(app.zport.dmd, daemonName=None)
@@ -354,17 +357,20 @@ class ZenPack(ZenPackBase):
             log.info('COMPONENTS: No pack related components to remove.')
 
 
-    def rebuildRelations(self, dmd):
-        log.info('RELATIONS: Building device relations [This could take a long time]')
+    def rebuildRelations(self, dmd, dontReBuild=1):
+        log.info('RELATIONS: Building device relations [This could take a very long time]')
         # Build relations on all devices
-        try:
-            for d in dmd.Devices.getSubDevicesGen():
-                d.buildRelations()
-                d.os.buildRelations()
-                d.hw.buildRelations()
-        except Exception:
-            log.error('MODELERS: Some unknown problem occured during relationship construction')
-            pass
+        if dontReBuild != 1:
+            try:
+                for d in dmd.Devices.getSubDevicesGen():
+                    d.buildRelations()
+                    d.os.buildRelations()
+                    d.hw.buildRelations()
+            except Exception:
+                log.error('RELATIONS: Some unknown problem occured during relationship construction')
+                pass
+        else:
+           log.info('RELATIONS: Skipping relationship rebuild')
 
 
     def addModeler(self, dmd, organizer=None, modelerNames=[]):
